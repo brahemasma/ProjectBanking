@@ -1,0 +1,21 @@
+## Visual Studio
+.vs/
+*.user
+*.suo
+
+## Build
+bin/
+obj/
+.dist/
+
+## Rider / JetBrains
+.idea/
+
+
+
+
+## OS
+.DS_Store
+Thumbs.db
+Bank.Api.zip
+.env

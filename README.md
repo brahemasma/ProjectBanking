@@ -1,151 +1,496 @@
-# 🏦 ProjectBanking
+# Bank Management Starter — .NET 9
 
-## 📌 Overview
+Déploiement Docker, changement de port et HTTPS : [DEPLOIEMENT.md](DEPLOIEMENT.md)
 
-**ProjectBanking** is a banking management application designed to provide secure APIs for managing clients, agents, branches, and banking transactions.
+Documentation complète : [DOCUMENTATION.md](DOCUMENTATION.md)
 
-The project follows a layered architecture to ensure maintainability, scalability, and separation of concerns.
+Squelette backend destiné au projet final de formation **ASP.NET Core .NET 9 + Angular 21**.
 
-## 🛠️ Technologies
+Le projet est volontairement préparé pour que les candidats puissent commencer directement l'exercice :
 
-### Backend
+- architecture créée ;
+- fichiers nommés ;
+- packages déclarés ;
+- SQL Server LocalDB configuré ;
+- Swagger configuré ;
+- Identity préparé ;
+- services enregistrés dans l'injection de dépendances ;
+- contrôleurs déjà créés ;
+- Models et DTO laissés à compléter.
 
-* ASP.NET Core Web API
-* C#
-* Entity Framework Core
-* SQL Server
-* JWT Authentication
-* RESTful APIs
+---
 
-### Frontend
+## 1. Prérequis
 
-* Angular
-* TypeScript
-* HTML5 / CSS3
-* RxJS
+- Visual Studio 2022 **17.12 ou supérieur**
+- Workload **ASP.NET and web development**
+- .NET 9 SDK
+- SQL Server LocalDB / SQL Server Express / SQL Server Developer
+- Git
 
-## ✨ Features
+Pour vérifier .NET :
 
-* 🔐 User authentication with JWT
-* 👥 Client management (Create, Read, Update, Delete)
-* 🏢 Bank branch management
-* 👨‍💼 Agent management
-* 💳 Banking transaction management
-* 🔎 Client search
-* 🛡️ Secured API endpoints using authorization
-* 🔗 Frontend and backend integration
+```powershell
+dotnet --version
+```
 
-## 📂 Project Structure
+---
+
+## 2. Ouvrir le projet
+
+Ouvrir :
 
 ```text
-ProjectBanking/
-├── Bank.Api/
-│   ├── Controllers/
-│   ├── DTOs/
-│   │   ├── Auth/
-│   │   └── Clients/
-│   ├── Services/
-│   ├── Models/
-│   ├── Data/
-│   ├── Program.cs
-│   └── appsettings.json
-│
-├── bank.front/
-│   ├── src/
-│   ├── public/
-│   ├── angular.json
-│   └── package.json
-│
-└── README.md
+BankManagement.sln
 ```
 
-*Note: Update the folder names and structure to match your actual repository.*
+dans Visual Studio 2022.
 
-## ⚙️ Prerequisites
+Puis :
 
-Before running the project, make sure you have installed:
+**Build > Build Solution**
 
-* .NET SDK
-* Node.js and npm
-* Angular CLI
-* SQL Server
-* Visual Studio or Visual Studio Code
+ou dans PowerShell :
 
-## 🚀 Getting Started
-
-### 1. Clone the repository
-
-```bash
-git clone <YOUR_REPOSITORY_URL>
-cd ProjectBanking
-```
-
-### 2. Configure the database
-
-Update the connection string in `appsettings.json`.
-
-Configure Entity Framework Core and apply the database migrations if required.
-
-```bash
-dotnet ef database update
-```
-
-### 3. Run the backend
-
-```bash
-cd Bank.Api
+```powershell
 dotnet restore
-dotnet run
+dotnet build
 ```
 
-### 4. Run the frontend
+---
 
-Open a new terminal:
+## 3. Restaurer les dépendances
+
+Les dépendances sont déjà déclarées dans `Bank.Api.csproj`.
+
+Il suffit normalement de lancer :
+
+```powershell
+dotnet restore
+```
+
+Packages prévus :
+
+```powershell
+liste des importations
+dotnet add Bank.Api/Bank.Api.csproj package Microsoft.EntityFrameworkCore.SqlServer --version 9.0.0
+dotnet add Bank.Api/Bank.Api.csproj package Microsoft.EntityFrameworkCore.Design --version 9.0.0
+dotnet add Bank.Api/Bank.Api.csproj package Microsoft.EntityFrameworkCore.Tools --version 9.0.0
+dotnet add Bank.Api/Bank.Api.csproj package Microsoft.AspNetCore.Identity.EntityFrameworkCore --version 9.0.0
+dotnet add Bank.Api/Bank.Api.csproj package Microsoft.AspNetCore.Authentication.JwtBearer --version 9.0.0
+dotnet add Bank.Api/Bank.Api.csproj package Swashbuckle.AspNetCore --version 7.2.0
+```
+
+Ces commandes servent surtout si un candidat recrée le projet manuellement.
+
+---
+
+## 4. Base de données
+
+La chaîne de connexion par défaut utilise SQL Server LocalDB :
+
+```json
+"DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=BankFormationDb;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
+```
+
+Elle fonctionne généralement directement avec Visual Studio sous Windows.
+
+Si vous utilisez SQL Server Express :
+
+```json
+"DefaultConnection": "Server=.\\SQLEXPRESS;Database=BankFormationDb;Trusted_Connection=True;TrustServerCertificate=True"
+```
+
+---
+
+# EXERCICE 1
+
+Compléter :
+
+```text
+Models/
+DTOs/
+Enums/TypeTransaction.cs
+Data/AppDbContext.cs
+```
+
+Les fichiers contiennent des commentaires `TODO EXERCICE`.
+
+Après avoir ajouté les propriétés `Id` dans les entités, décommenter les `DbSet` dans `AppDbContext.cs`.
+
+---
+
+## 5. Migrations avec Visual Studio
+
+Ouvrir :
+
+```text
+Tools
+> NuGet Package Manager
+> Package Manager Console
+```
+
+Vérifier :
+
+```text
+Default project = Bank.Api
+```
+
+Puis :
+
+```powershell
+Add-Migration InitialCreate
+Update-Database
+```
+
+Pour annuler la dernière migration non appliquée :
+
+```powershell
+Remove-Migration
+```
+
+Pour créer une nouvelle migration :
+
+```powershell
+Add-Migration NomDeLaMigration
+Update-Database
+```
+
+---
+
+## 6. Migrations avec dotnet CLI
+
+Installer l'outil EF si nécessaire :
+
+```powershell
+dotnet tool install --global dotnet-ef --version 9.*
+```
+
+ou mettre à jour :
+
+```powershell
+dotnet tool update --global dotnet-ef --version 9.*
+```
+
+Créer la migration :
+
+```powershell
+dotnet ef migrations add InitialCreate --project Bank.Api
+```
+
+Appliquer la migration :
+
+```powershell
+dotnet ef database update --project Bank.Api
+```
+
+Lister les migrations :
+
+```powershell
+dotnet ef migrations list --project Bank.Api
+```
+
+---
+
+## 7. Lancer le backend
+
+Visual Studio :
+
+```text
+F5
+```
+
+ou :
+
+```text
+Ctrl + F5
+```
+
+En CLI :
+
+```powershell
+dotnet run --project Bank.Api
+```
+
+Swagger doit s'ouvrir automatiquement.
+
+URL prévue :
+
+```text
+http://localhost:5176/swagger
+```
+
+Test rapide :
+
+```text
+GET /api/health
+```
+
+Réponse attendue :
+
+```json
+{
+  "status": "OK",
+  "project": "Bank.Api",
+  "message": "Backend skeleton is running"
+}
+```
+
+---
+
+## 8. Structure du projet
+
+```text
+BankManagementStarter/
+├── BankManagement.sln
+├── README.md
+├── .gitignore
+└── Bank.Api/
+    ├── Controllers/
+    │   ├── AuthController.cs
+    │   ├── ClientsController.cs
+    │   ├── ComptesController.cs
+    │   ├── GuichetsController.cs
+    │   ├── HealthController.cs
+    │   ├── TransactionsController.cs
+    │   └── TypesComptesController.cs
+    │
+    ├── Data/
+    │   └── AppDbContext.cs
+    │
+    ├── DTOs/
+    │   ├── Auth/
+    │   ├── Clients/
+    │   ├── Comptes/
+    │   ├── Guichets/
+    │   ├── Transactions/
+    │   └── TypesComptes/
+    │
+    ├── Enums/
+    │   └── TypeTransaction.cs
+    │
+    ├── Models/
+    │   ├── ApplicationUser.cs
+    │   ├── Client.cs
+    │   ├── Compte.cs
+    │   ├── Guichet.cs
+    │   ├── Transaction.cs
+    │   └── TypeCompte.cs
+    │
+    ├── Services/
+    │   ├── Interfaces/
+    │   └── Implementations/
+    │
+    ├── Properties/
+    │   └── launchSettings.json
+    │
+    ├── appsettings.json
+    ├── appsettings.Development.json
+    ├── Bank.Api.csproj
+    ├── GlobalUsings.cs
+    └── Program.cs
+```
+
+---
+
+## 9. Git — première publication
+
+Dans le dossier racine :
+
+```powershell
+git init
+git add .
+git commit -m "chore: initialize bank management backend skeleton"
+git branch -M main
+git remote add origin URL_DU_REPOSITORY
+git push -u origin main
+```
+
+Vérifier :
+
+```powershell
+git status
+git log --oneline
+```
+
+---
+
+## 10. Récupération sur le VPS
+
+Première fois :
 
 ```bash
-cd bank.front
-npm install
-ng serve
+sudo apt update
+sudo apt install git -y
+
+mkdir -p ~/apps
+cd ~/apps
+
+git clone URL_DU_REPOSITORY bank-management
+cd bank-management
+git status
 ```
 
-Open the local Angular URL displayed in the terminal.
+Mises à jour suivantes :
 
-## 🔒 Authentication
-
-The application uses JSON Web Tokens (JWT) to authenticate users and protect secured API endpoints.
-
-Include the following header in requests to protected endpoints:
-
-```http
-Authorization: Bearer <YOUR_JWT_TOKEN>
+```bash
+cd ~/apps/bank-management
+git pull origin main
 ```
 
-## 🔌 API Endpoints
+La dockerisation sera faite dans la séance de déploiement.
 
-| Method | Endpoint              | Description          |
-| ------ | --------------------- | -------------------- |
-| POST   | `/api/auth/login`     | Authenticate a user  |
-| GET    | `/api/clients`        | Retrieve all clients |
-| GET    | `/api/clients/{id}`   | Retrieve a client    |
-| POST   | `/api/clients`        | Create a client      |
-| GET    | `/api/clients/search` | Search for clients   |
+---
 
-*These endpoints are indicative; adjust them to match your controller routes.*
+## 11. Travail demandé au candidat
 
-## 🌿 Git Workflow
+### Models
 
-The project can be organized into separate branches for backend and frontend development:
+Compléter :
 
-* `main` — stable version
-* `develop` — integration branch
-* `backend` — backend development
-* `frontend` — frontend development
+- `ApplicationUser`
+- `Guichet`
+- `Client`
+- `TypeCompte`
+- `Compte`
+- `Transaction`
+- `TypeTransaction`
 
-## 👩‍💻 Development
+Ajouter :
 
-Contributions and improvements are welcome. Follow the existing project structure and coding conventions when adding new features.
+- propriétés ;
+- clés étrangères ;
+- collections ;
+- DataAnnotations ;
+- relations.
 
-## 📄 License
+### DTO
 
-This project is intended for educational and development purposes unless otherwise specified.
-# ProjectBanking
+Compléter les DTO contenus dans :
+
+```text
+DTOs/Auth
+DTOs/Guichets
+DTOs/Clients
+DTOs/TypesComptes
+DTOs/Comptes
+DTOs/Transactions
+```
+
+### DbContext
+
+Compléter :
+
+```text
+Data/AppDbContext.cs
+```
+
+Ajouter :
+
+- DbSet ;
+- index uniques ;
+- précision `decimal(18,2)` ;
+- relations ;
+- `DeleteBehavior.Restrict`.
+
+### Migration
+
+Créer :
+
+```powershell
+Add-Migration InitialCreate
+Update-Database
+```
+
+---
+
+## 12. Vérification avant remise
+
+Le candidat doit pouvoir exécuter :
+
+```powershell
+dotnet restore
+dotnet build
+dotnet run --project Bank.Api
+```
+
+Puis vérifier Swagger et :
+
+```text
+GET /api/health
+```
+
+Après réalisation des Models :
+
+```powershell
+Add-Migration InitialCreate
+Update-Database
+```
+
+Enfin :
+
+```powershell
+git status
+git add .
+git commit -m "feat: complete models DTOs and initial migration"
+git push
+```
+
+---
+
+## Important
+
+Le projet contient déjà l'infrastructure minimale mais **les réponses de l'exercice ne sont pas écrites**.
+
+Les fichiers Models et DTO sont volontairement laissés sous forme de squelette avec des commentaires TODO afin que les candidats réalisent eux-mêmes la modélisation.
+
+---
+
+## API REST et préparation JWT
+
+Les services et contrôleurs pour les clients, guichets, types de comptes, comptes et transactions sont disponibles dans Swagger. Les routes restent publiques pour faciliter la démonstration. Le service et le contrôleur d'authentification seront complétés pendant la séance sécurité.
+
+Les dépendances JWT et Swagger sont déjà déclarées dans le projet. En cas de recréation manuelle :
+
+```powershell
+dotnet add Bank.Api/Bank.Api.csproj package Microsoft.AspNetCore.Authentication.JwtBearer --version 9.0.0
+dotnet add Bank.Api/Bank.Api.csproj package Swashbuckle.AspNetCore --version 7.2.0
+```
+
+Pour préparer et lancer la base de données :
+
+```powershell
+dotnet restore
+dotnet ef database update --project Bank.Api
+dotnet run --project Bank.Api
+```
+
+Pour les opérations de transaction, fournir temporairement l'identifiant d'un agent existant dans le paramètre `agentId`. Plus tard, cet identifiant sera lu depuis le jeton JWT.
+
+jouts principaux :
+
+- Authentification JWT complète.
+- Rôles Admin et Agent.
+- Administrateur créé automatiquement au démarrage.
+- Routes métier protégées avec [Authorize].
+- Création d’agents réservée à l’administrateur.
+- Identification automatique de l’agent depuis le JWT pour les transactions.
+- Docker optionnel avec :
+  - [Dockerfile](E:/dotnet bank app/BankManagementStarter/Dockerfile)
+  - [docker-compose.yml](E:/dotnet bank app/BankManagementStarter/docker-compose.yml)
+  - [.env.example](E:/dotnet bank app/BankManagementStarter/.env.example)
+  - [.dockerignore](E:/dotnet bank app/BankManagementStarter/.dockerignore)
+- Documentation complète dans [DOCUMENTATION.md](E:/dotnet bank app/BankManagementStarter/DOCUMENTATION.md).
+  Identifiants admin locaux :
+  Email : admin@bank.local
+  Mot de passe : Admin123!
+  Swagger local :
+  http://localhost:5176/swagger
+  Swagger avec Docker :
+  http://localhost:8080/swagger
+  Pour Docker :
+  Copy-Item .env.example .env
+
+# Modifier les secrets dans .env
+
+docker compose up --build -d
